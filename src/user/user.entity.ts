@@ -8,6 +8,7 @@ import {
   OneToMany,
   BeforeInsert,
 } from 'typeorm';
+import { Role } from './role';
 const bcrypt = require('bcrypt');
 
 @Entity()
@@ -55,6 +56,10 @@ $$ LANGUAGE plpgsql;
 
   @OneToMany(() => Measurement, (measurement) => measurement.user)
   measurements: Measurement[];
+
+  @ApiProperty()
+  @Column({ type: 'enum', enum: Role, default: Role.TRAINEE })
+  role: Role;
 
   @BeforeInsert()
   async hashPassword() {

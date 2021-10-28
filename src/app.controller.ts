@@ -33,6 +33,10 @@ export class AppController {
   login(@Body() { username, password }: LoginDto) {
     return this.appService.login(username, password);
   }
+  @Post('register')
+  register(@Body() { username, password }: LoginDto) {
+    return this.appService.register(username, password);
+  }
   @Get('measurements')
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)

@@ -26,6 +26,9 @@ export class AppService {
   login(username: string, password: string) {
     return this.authService.login(username, password);
   }
+  register(username: string, password: string) {
+    return this.authService.register(username, password);
+  }
   deleteAll() {
     this.measurementService.deleteAll();
     return this.userService.deleteAll();
