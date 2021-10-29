@@ -18,7 +18,6 @@ export class UserService {
   }
   public async generateUser() {
     const entity = Object.assign(new User(), {
-      name: faker.name.findName(),
       username: faker.internet.userName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
@@ -30,6 +29,6 @@ export class UserService {
     return await this.userRepository.delete({ id });
   }
   public async deleteAll() {
-    await this.userRepository.delete({});
+    await this.userRepository.deleteALl();
   }
 }

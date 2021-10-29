@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Role } from 'src/user/role';
 import { User } from 'src/user/user.entity';
 import { UserRepository } from 'src/user/user.repository';
+import { JwtPayload } from './jwt.dto';
 const bcrypt = require('bcrypt');
 
 @Injectable()
@@ -24,7 +24,12 @@ export class AuthService {
   async login(username: string, password: string) {
     const user = await this.validateUser(username, password);
     if (user) {
-      const payload = { username, id: user.id };
+      const payload: JwtPayload = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        roles: user.roles,
+      };
       return {
         access_token: this.jwtService.sign(payload),
       };
@@ -34,14 +39,19 @@ export class AuthService {
   async register(username: string, password: string) {
     const entity = Object.assign(new User(), {
       username,
-      name: username,
       email: `${username}@tapi.hu`,
-      role: Role.TRAINEE,
-      password: bcrypt.hashSync(password, 10),
+      role: 1,
+      password,
     });
     const user = await this.userRepository.save(entity);
+    const payload: JwtPayload = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      roles: user.roles,
+    };
     return {
-      access_token: this.jwtService.sign({ username, id: user.id }),
+      access_token: this.jwtService.sign(payload),
     };
   }
 }

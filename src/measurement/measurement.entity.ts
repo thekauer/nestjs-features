@@ -1,12 +1,10 @@
 import { User } from 'src/user/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import Encrypt from 'src/config/Encrypt';
+import { EncryptedColumn } from 'src/config/Encrypt';
 
 import {
-  Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -20,17 +18,11 @@ class Measurement {
   user: User;
 
   @ApiProperty()
-  @Column({
-    type: 'varchar',
-    transformer: Encrypt(),
-  })
+  @EncryptedColumn()
   heartRate: number;
 
   @ApiProperty()
-  @Column({
-    type: 'varchar',
-    transformer: Encrypt(),
-  })
+  @EncryptedColumn()
   bloodPressure: number;
 
   @CreateDateColumn()

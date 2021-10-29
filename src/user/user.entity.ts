@@ -1,24 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import Encrypt from 'src/config/Encrypt';
+import { EncryptedColumn } from 'src/config/Encrypt';
 import Measurement from 'src/measurement/measurement.entity';
+import { Role } from 'src/role/role.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   OneToMany,
   BeforeInsert,
+  ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
-import { Role } from './role';
 const bcrypt = require('bcrypt');
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @ApiProperty()
-  @Column()
-  name: string;
 
   /*
 CREATE OR REPLACE FUNCTION mydecrypt(s text) RETURNS bytea AS $$
@@ -34,32 +33,24 @@ CREATE OR REPLACE FUNCTION mydecrypt(s text) RETURNS bytea AS $$
 $$ LANGUAGE plpgsql;
 */
   @ApiProperty()
-  @Column({
-    type: 'varchar',
-    transformer: Encrypt(),
-  })
+  @EncryptedColumn()
   email: string;
 
   @ApiProperty()
-  @Column({
-    type: 'varchar',
-    transformer: Encrypt(),
-  })
+  @EncryptedColumn()
   username: string;
 
   @ApiProperty()
-  @Column({
-    type: 'varchar',
-    transformer: Encrypt(),
-  })
+  @EncryptedColumn()
   password: string;
 
   @OneToMany(() => Measurement, (measurement) => measurement.user)
   measurements: Measurement[];
 
   @ApiProperty()
-  @Column({ type: 'enum', enum: Role, default: Role.TRAINEE })
-  role: Role;
+  @ManyToMany(() => Role, (role) => role.id)
+  @JoinTable()
+  roles: Role[];
 
   @BeforeInsert()
   async hashPassword() {

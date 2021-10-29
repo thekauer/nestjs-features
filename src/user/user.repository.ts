@@ -23,4 +23,7 @@ export class UserRepository {
   async delete(user: Partial<User>): Promise<User> {
     return this.userRepository.remove(user);
   }
+  async deleteALl(): Promise<void> {
+    return await this.userRepository.clear();
+  }
 }

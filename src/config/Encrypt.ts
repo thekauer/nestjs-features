@@ -1,6 +1,7 @@
+import { Column, ColumnOptions } from 'typeorm';
 import { EncryptionTransformer } from 'typeorm-encrypted';
 
-export default () => {
+const Encrypted = () => {
   if (process.env.ENCRYPTION_KEY.length !== 32) {
     throw new Error('Encryption key must be 32 characters long');
   }
@@ -16,3 +17,24 @@ export default () => {
 
   return new EncryptionTransformer(EncryptionTransformerConfig);
 };
+
+export const EncryptedColumn = (options?: ColumnOptions): PropertyDecorator => {
+  return function (object: Object, propertyName: string) {
+    if (options) {
+      if (options?.type && options?.type !== 'varchar') {
+        throw new Error('Encrypted column must be of type varchar');
+      }
+      if (options?.transformer) {
+        throw new Error('Encrypted column cannot have a transformer');
+      }
+    }
+    const newOptions: ColumnOptions = {
+      ...options,
+      type: 'varchar',
+      transformer: Encrypted(),
+    };
+    Column(newOptions)(object, propertyName);
+  };
+};
+
+export default Encrypted;

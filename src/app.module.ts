@@ -8,6 +8,8 @@ import { MeasurementModule } from './measurement/measurement.module';
 import { CacheModule } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { redisConfig } from './config/redisConfig';
+import { RoleModule } from './role/role.module';
+import { PermissionModule } from './permission/permission.module';
 import * as redisStore from 'cache-manager-redis-store';
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import * as redisStore from 'cache-manager-redis-store';
     UserModule,
     MeasurementModule,
     AuthModule,
+    PermissionModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
