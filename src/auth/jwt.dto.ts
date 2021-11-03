@@ -1,7 +1,14 @@
-import { Role } from 'src/role/role.entity';
+import { User } from '../user/user.entity';
 export interface JwtPayload {
   id: number;
+  firstName: string;
+  lastName: string;
   email: string;
-  username: string;
-  roles: Role[];
 }
+
+export const toJwtPayload = (user: User): JwtPayload => ({
+  id: user.id,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  email: user.email,
+});

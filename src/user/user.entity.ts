@@ -1,16 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { EncryptedColumn } from 'src/config/Encrypt';
-import Measurement from 'src/measurement/measurement.entity';
-import { Role } from 'src/role/role.entity';
+import EncryptedColumn from '../encrypt/encrypt.decorator';
+import { Role } from '../role/role.entity';
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
-  OneToMany,
   BeforeInsert,
-  ManyToOne,
   ManyToMany,
   JoinTable,
+  Column,
 } from 'typeorm';
 const bcrypt = require('bcrypt');
 
@@ -19,33 +16,21 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  /*
-CREATE OR REPLACE FUNCTION mydecrypt(s text) RETURNS bytea AS $$
-        BEGIN
-                RETURN substring(
-                    decrypt_iv(
-                        decode(s,'base64'::text)::bytea,
-                        'verystrongkeyyyy'::bytea,
-                        'verystrongivvvvv'::bytea,
-                        'aes-cbc/pad:none'::text),
-                    17);
-        END;
-$$ LANGUAGE plpgsql;
-*/
   @ApiProperty()
-  @EncryptedColumn()
+  @EncryptedColumn({ unique: true })
   email: string;
 
   @ApiProperty()
   @EncryptedColumn()
-  username: string;
+  firstName: string;
 
   @ApiProperty()
   @EncryptedColumn()
-  password: string;
+  lastName: string;
 
-  @OneToMany(() => Measurement, (measurement) => measurement.user)
-  measurements: Measurement[];
+  @ApiProperty()
+  @Column()
+  password: string;
 
   @ApiProperty()
   @ManyToMany(() => Role, (role) => role.id)
@@ -55,5 +40,9 @@ $$ LANGUAGE plpgsql;
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
+  }
+
+  constructor(user?: Partial<User>) {
+    Object.assign(this, user);
   }
 }

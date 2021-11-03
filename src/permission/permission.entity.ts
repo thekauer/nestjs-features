@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { EncryptedColumn } from 'src/config/Encrypt';
-import { Role } from 'src/role/role.entity';
-import { Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Role } from '../role/role.entity';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Permission {
@@ -9,13 +8,9 @@ export class Permission {
   id: number;
 
   @ApiProperty()
-  @EncryptedColumn()
-  name: string;
+  @Column()
+  slug: string;
 
-  @ApiProperty()
-  @EncryptedColumn()
-  description: string;
-
-  @ManyToOne((_) => Role, (role) => role.id)
-  role: Role;
+  @ManyToMany(() => Role, (role) => role.id)
+  roles: Role[];
 }

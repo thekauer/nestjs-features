@@ -1,8 +1,4 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { resolve } from 'path';
-require('dotenv').config({
-  path: resolve(__dirname, '../..', '.env'),
-});
 
 const ormconfig: TypeOrmModuleOptions = {
   type: 'postgres',
@@ -13,8 +9,8 @@ const ormconfig: TypeOrmModuleOptions = {
   database: process.env.POSTGRES_DATABASE,
   synchronize: false,
   entities: ['dist/**/*.entity{.ts,.js}'],
+  migrations: ['dist/src/migrations/*.js'],
   migrationsTableName: 'migration',
-  migrations: ['dist/migrations/*.js'],
   cli: {
     migrationsDir: 'src/migrations',
   },

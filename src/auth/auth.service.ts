@@ -1,8 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/user/user.entity';
-import { UserRepository } from 'src/user/user.repository';
-import { JwtPayload } from './jwt.dto';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { RegisterDTO } from '../user/register.dto';
+import { User } from '../user/user.entity';
+import { UserRepository } from '../user/user.repository';
+import { toJwtPayload } from './jwt.dto';
 const bcrypt = require('bcrypt');
 
 @Injectable()
@@ -12,8 +17,8 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.userRepository.findOne({ username });
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.userRepository.findOne({ email });
     if (user && bcrypt.compareSync(pass, user.password)) {
       const { password, ...result } = user;
       return result;
@@ -21,37 +26,27 @@ export class AuthService {
     throw new UnauthorizedException();
   }
 
-  async login(username: string, password: string) {
-    const user = await this.validateUser(username, password);
+  async login(email: string, password: string) {
+    const user = await this.validateUser(email, password);
     if (user) {
-      const payload: JwtPayload = {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        roles: user.roles,
-      };
       return {
-        access_token: this.jwtService.sign(payload),
+        access_token: this.sign(user),
       };
     }
     return null;
   }
-  async register(username: string, password: string) {
-    const entity = Object.assign(new User(), {
-      username,
-      email: `${username}@tapi.hu`,
-      role: 1,
-      password,
-    });
+  async register(registerDTO: RegisterDTO) {
+    if (await this.userRepository.findOne({ email: registerDTO.email })) {
+      throw new HttpException('Email already exists', 409);
+    }
+    const role = { id: registerDTO.roleId };
+    const entity = Object.assign(new User(), { ...registerDTO, role });
     const user = await this.userRepository.save(entity);
-    const payload: JwtPayload = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      roles: user.roles,
-    };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.sign(user),
     };
+  }
+  sign(payload: User, options?: JwtSignOptions): string {
+    return this.jwtService.sign(toJwtPayload(payload), options);
   }
 }

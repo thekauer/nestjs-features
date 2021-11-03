@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Permission } from 'src/permission/permission.entity';
-import { User } from 'src/user/user.entity';
+import { Permission } from '../permission/permission.entity';
+import { User } from '../user/user.entity';
 import {
   Column,
   Entity,
+  JoinTable,
   ManyToMany,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -16,10 +16,11 @@ export class Role {
 
   @ApiProperty()
   @Column()
-  name: string;
+  slug: string;
 
-  @OneToMany((_) => Permission, (permission) => permission.role)
+  @ManyToMany(() => Permission, (permission) => permission.roles)
+  @JoinTable()
   permissions: Permission[];
-  @ManyToMany((_) => User, (user) => user.roles)
+  @ManyToMany(() => User, (user) => user.id)
   users: User[];
 }
